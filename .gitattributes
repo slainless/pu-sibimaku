@@ -1,0 +1,5 @@
+assets/css/** linguist-vendored
+assets/js/** linguist-vendored
+assets/less/** linguist-vendored
+assets/pages/*.js linguist-vendored
+plugins/** linguist-vendored
