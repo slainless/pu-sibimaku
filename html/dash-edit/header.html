@@ -1,0 +1,26 @@
+<html>
+<head>
+<script src="jquery.js"></script>
+<script>
+$(document).ready(function(){
+
+	$('tbody').on('click', '.delete', function(){
+		var count = $("tbody").children().length;
+	  	if(count == 1){
+	  		alert("Minimal 1 Divisi !");
+	  		return false;
+	  	}
+	  	else {
+			$(this).parentsUntil("tbody").remove();
+	  	}
+	});
+
+	$(".add").click(function(){
+		var append = "<tr><td><input name='pf_div[]' type='text'></td><td><input name='pf_title[]' type='text'></td><td><input name='pf_kontrak[]' type='text'></td><td><input name='pf_bln_1[]' type='text'></td><td><input name='pf_bln_2[]' type='text'></td><td><input name='pf_bln_3[]' type='text'></td><td><button class='delete' type='button'>DELETE</button></td></tr>"
+		$(".main tbody").append(append);
+	}); 
+
+});
+</script>
+</head>
+<body>

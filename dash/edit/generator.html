@@ -1,0 +1,76 @@
+	<form method="GET">
+	#===================================================#<br>
+	string : <input type='text' name='string' width='500px' value=''>
+	delimiter : <input type='text' name='delim' width='500px' value=''>
+	<br>
+	#===================================================#<br>
+	count : <input type='text' name='count' width='500px' value=''>
+	group : <input type='text' name='group' width='500px' value=''><br><br>
+	in-group delimiter : <input type='text' name='gdel' width='500px' value=''><br>
+	<!-- group separator : <input type='text' name='gsep' width='500px' value=''><br> -->
+	#===================================================#<br>
+	<button type='submit'>submit</button>
+	</form>
+	<div style='
+		height: 350px;
+		border: 1px solid rgba(0,0,0,0.2);
+		column-count: 4;
+		column-fill: auto;
+	'>
+	<pre></pre>
+	</div>
+	<script src="jquery.min.js"></script>
+	<script>
+
+		function rand(min, max){
+		    if(min == 0){
+		        return Math.floor((Math.random() * max) + 0);
+		    }else{
+		        return Math.floor(Math.random() * (max - min + 1)) + min;
+		    }
+		}
+
+		window.GET = location.search.substr(1).split("&").reduce((o,i)=>(u=decodeURIComponent,[k,v]=i.split("="),o[u(k)]=v&&u(v),o),{});
+
+		var defaultVar = {
+			string: '',
+			delim: ' ',
+			count: 20,
+			group: 5,
+			gdel: ' '
+		};
+		var name;
+
+		$('input').each(function(){
+			name = this.name;
+
+			if(GET[name] !== '' && GET[name] !== undefined){
+				if(name === 'delim' || name === 'gdel' || name === 'string'){
+					GET[name] = GET[name].replace(/\+/gi, ' ');
+				}
+				this.value = GET[name];
+			}
+			else {
+				this.value = defaultVar[name];
+			}
+
+		});
+
+		if(GET['string'] !== undefined && GET['string'] !== ''){
+			var string = GET['string'].split(GET['delim']);
+			var result = '';
+			for(i = 0; i < GET['count']; i++){
+
+				for(ii = 0; ii < GET['group']; ii++){
+
+					result = result + string[rand(0, string.length - 1)] + (ii === GET['group'] - 1 ? String.fromCharCode(10) : GET['gdel']);
+
+				}
+
+			}
+		}
+
+		$('pre').text(result);
+
+
+	</script>

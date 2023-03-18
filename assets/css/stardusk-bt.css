@@ -1,0 +1,101 @@
+
+.fixed-table-pagination .pagination-detail,.fixed-table-pagination div.pagination {
+ margin-top:10px;
+ margin-bottom:10px
+}
+.fixed-table-pagination div.pagination .pagination {
+ margin:0
+}
+.fixed-table-pagination .pagination a {
+ padding:6px 12px;
+ line-height:1.428571429
+}
+.fixed-table-pagination .pagination-info {
+ line-height:34px;
+ margin-right:5px
+}
+.fixed-table-pagination .btn-group {
+ position:relative;
+ display:inline-block;
+ vertical-align:middle
+}
+.fixed-table-pagination .dropup .dropdown-menu {
+ margin-bottom:0
+}
+.fixed-table-pagination .page-list {
+ display:inline-block
+}
+.fixed-table-toolbar .columns-left {
+ margin-right:5px
+}
+.fixed-table-toolbar .columns-right {
+ margin-left:5px
+}
+.fixed-table-toolbar .columns label {
+ display:block;
+ padding:3px 20px;
+ clear:both;
+ font-weight:400;
+ line-height:1.428571429
+}
+.fixed-table-toolbar .bs-bars,.fixed-table-toolbar .columns,.fixed-table-toolbar .search {
+ position:relative;
+ margin-top:10px;
+ margin-bottom:10px;
+ line-height:34px
+}
+.fixed-table-pagination li.disabled a {
+ pointer-events:none;
+ cursor:default
+}
+.fixed-table-loading {
+ display:none;
+ position:absolute;
+ top:42px;
+ right:0;
+ bottom:0;
+ left:0;
+ z-index:99;
+ background-color:#fff;
+ text-align:center
+}
+.table td,.table th {
+ vertical-align:middle
+}
+.fixed-table-toolbar .dropdown-menu {
+ text-align:left;
+ max-height:300px;
+ overflow:auto
+}
+.fixed-table-toolbar .btn-group>.btn-group {
+ display:inline-block;
+ margin-left:-1px!important
+}
+.fixed-table-toolbar .btn-group>.btn-group>.btn {
+ border-radius:0
+}
+.fixed-table-toolbar .btn-group>.btn-group:first-child>.btn {
+ border-top-left-radius:4px;
+ border-bottom-left-radius:4px
+}
+.fixed-table-toolbar .btn-group>.btn-group:last-child>.btn {
+ border-top-right-radius:4px;
+ border-bottom-right-radius:4px
+}
+p.fixed-table-scroll-inner {
+ width:100%;
+ height:200px
+}
+div.fixed-table-scroll-outer {
+ top:0;
+ left:0;
+ visibility:hidden;
+ width:200px;
+ height:150px;
+ overflow:hidden
+}
+.fixed-table-pagination:after,.fixed-table-toolbar:after {
+ content:"";
+ display:block;
+ clear:both
+}

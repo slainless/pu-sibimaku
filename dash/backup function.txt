@@ -1,0 +1,767 @@
+<?php
+
+class dashb {
+	protected $query;
+    protected $table = "dash";
+
+    function __construct($db) {
+        $this->query = $db;
+    }
+}
+
+class dashbProcess extends dashb {
+
+	private $timezone = "Asia/Makassar";
+	private $table2 = "member";
+	private $table3 = "cat";
+
+	private $n_kontrak;
+	private $n_pagu;
+	private $dp_info;
+	private $dp_kontrak;
+	private $dp_pelaksana;
+	private $dp_surat;
+	private $q_id;
+
+	private $pf_info;
+	private $mp_info;
+
+	private $rp_info_prg;
+	private $rp_info_prg_c;
+	private $rp_info_waktu;
+	private $rp_info_waktu_c;
+
+	private $ke_info; 
+	private $ke_c; 
+
+	private $gallery; 
+
+	private $mk_info; 
+	private $mk_c_xy; 
+	private $mk_c_info; 
+
+	private $na_info;
+
+	function setInfo($q_kontrak, $q_pagu, $q_dp_info, $q_dp_kontrak, $q_dp_pelaksana, $q_dp_surat, $q_q_id) {
+		$this->dp_info = $q_dp_info;		
+		$this->dp_kontrak = $q_dp_kontrak;		
+		$this->dp_pelaksana = $q_dp_pelaksana;		
+		$this->dp_surat = $q_dp_surat;		
+		$this->q_id = $q_q_id;
+		$this->$n_kontrak = $q_kontrak;
+		$this->$n_pagu = $q_pagu;		
+	}
+
+	function setPf($q_pf_info, $q_q_id) {
+		$this->pf_info = $q_pf_info;
+		$this->q_id = $q_q_id;
+	}
+
+	function setMp($q_mp_info, $q_q_id) {
+		$this->mp_info = $q_mp_info;
+		$this->q_id = $q_q_id;
+	}
+
+	function setRp($q_rp_info_prg, $q_rp_info_prg_c, $q_rp_info_waktu, $q_rp_info_waktu_c, $q_q_id) {
+		$this->rp_info_prg = $q_rp_info_prg;
+		$this->rp_info_prg_c = $q_rp_info_prg_c;
+		$this->rp_info_waktu = $q_rp_info_waktu;
+		$this->rp_info_waktu_c = $q_rp_info_waktu_c;
+		$this->q_id = $q_q_id;		
+	}
+
+	function setKe($q_ke_info, $q_ke_c, $q_q_id) {
+		$this->ke_info = $q_ke_info;
+		$this->ke_c = $q_ke_c;
+		$this->q_id = $q_q_id;
+	}
+
+	function setGa($q_gallery, $q_q_id) {
+		$this->gallery = $q_gallery;
+		$this->q_id = $q_q_id;
+	}
+
+	function setMk($q_mk_info, $q_mk_c_xy, $q_mk_c_info, $q_q_id) {
+		$this->mk_info = $q_mk_info;
+		$this->mk_c_xy = $q_mk_c_xy;
+		$this->mk_c_info = $q_mk_c_info;
+		$this->q_id = $q_q_id;
+	}
+
+	function setNa($q_na_info, $q_q_id) {
+		$this->na_info = $q_na_info;
+		$this->q_id = $q_q_id;
+	}
+
+	function fetchMember($level) {
+
+		$stmtq = "SELECT id, name FROM ".$this->table2." WHERE level = ?";
+
+		if ($stmt = $this->query->prepare($stmtq)){
+
+			$stmt->bind_param("i", $level);
+		    $stmt->execute();
+		    $stmt->bind_result($r_id, $r_name);
+
+		    $x = 0;
+		    while($stmt->fetch()){
+		    	$array[$x][0] = $r_id;
+		    	$array[$x][1] = $r_name;
+
+		    	$x++;
+		    }
+		    $stmt->close();
+		    return $array;
+		}
+
+	}
+
+	function insert($n_kontrak, $n_pagu, $dp_info, $pptk, $kategori){
+
+		$stmtq = "INSERT INTO ".$this->table." (n_kontrak, n_pagu, dp_info, lead_id, kategori) VALUES (?, ?, ?, ?, ?)";
+	    if($stmt = $this->query->prepare($stmtq)) {
+
+			$stmt->bind_param('sssss', $n_kontrak, $n_pagu, $dp_info, $pptk, $kategori);
+			$stmt->execute();
+
+	    	$stmt->close();
+	    	return true;
+		}
+		else {
+			return false;
+		}
+
+	}
+
+	function updateSpecial($id, $title, $pptk, $pagu){
+
+		$stmtq = "SELECT dp_info FROM ".$this->table." WHERE id = ?";
+
+		if ($stmt = $this->query->prepare($stmtq)){
+
+			$stmt->bind_param("i", $id);
+		    $stmt->execute();
+
+		    $stmt->bind_result($dp_info);
+		    $stmt->fetch();
+		    $stmt->close();
+
+		}
+
+		$stmtq = "SELECT id FROM ".$this->table2." WHERE level = 3";
+
+		if ($stmt = $this->query->prepare($stmtq)){
+
+		    $stmt->execute();
+
+		    $stmt->bind_result($id_pptk);
+		    $flag = 0;
+		    while($stmt->fetch()):
+		    	if($id_pptk == $pptk){
+		    		$flag = 1;
+		    	}
+		    endwhile;
+		    $stmt->close();
+
+		}
+
+		if($flag == 0){
+			return false;
+		}
+
+		$array = cta($dp_info);
+		$array[0] = $title;
+
+		$dp_info = atc($array);
+
+		$stmtq = "UPDATE ".$this->table." SET lead_id = ?, dp_info = ?, n_pagu = ? WHERE id = ?";
+
+		if ($stmt = $this->query->prepare($stmtq)){
+
+			$stmt->bind_param("isii", $pptk, $dp_info, $pagu, $id);
+		    $stmt->execute();
+
+		    $stmt->close();
+		}
+
+		return true;
+
+	}
+
+	function updateKontraktor($p_id, $k_id) {
+
+		$stmtq = "SELECT lead_id, rel_id FROM ".$this->table." WHERE id = ?";
+
+		if ($stmt = $this->query->prepare($stmtq)){
+
+			$stmt->bind_param("i", $p_id);
+		    if(!$stmt->execute()){
+		    	return false;
+		    }
+
+		    $stmt->bind_result($rel_id, $q_rel_id);
+		    $stmt->fetch();
+		    $stmt->close();
+		}
+
+		$stmtq = "UPDATE ".$this->table." SET rel_id = ? WHERE id = ?";
+
+		if ($stmt = $this->query->prepare($stmtq)){
+
+			$stmt->bind_param("ii", $k_id, $p_id);
+		    if(!$stmt->execute()){
+		    	return false;
+		    }
+
+		    $stmt->close();
+		}
+
+		$stmtq = "UPDATE ".$this->table2." SET rel_id = 0 WHERE id = ?";
+
+		if ($stmt = $this->query->prepare($stmtq)){
+
+			$stmt->bind_param("i", $q_rel_id);
+		    if(!$stmt->execute()){
+		    	return false;
+		    }
+
+		    $stmt->close();
+		}
+
+		$stmtq = "UPDATE ".$this->table2." SET rel_id = ? WHERE id = ?";
+
+		if ($stmt = $this->query->prepare($stmtq)){
+
+			$stmt->bind_param("ii", $rel_id, $k_id);
+		    if(!$stmt->execute()){
+		    	return false;
+		    }
+
+		    $stmt->close();
+		}
+
+		return true;	
+
+	}
+
+	function fetch($s_id, $special = 0) {
+
+		switch ($special) {
+			case 0:
+				$stmtq = "SELECT ".$this->table.".rel_id, ".$this->table.".kategori, ".$this->table.".dp_info, ".$this->table.".dp_kontrak, ".$this->table.".dp_pelaksana, ".$this->table.".dp_surat, ".$this->table.".pf_info, ".$this->table.".mp_info, ".$this->table.".rp_info_prg, ".$this->table.".rp_info_waktu, ".$this->table.".rp_info_prg_c, ".$this->table.".rp_info_waktu_c, ".$this->table.".ke_info, ".$this->table.".ke_c, ".$this->table.".gallery, ".$this->table.".mk_info, ".$this->table.".mk_c_xy, ".$this->table.".mk_c_info, ".$this->table.".na_info, ".$this->table.".lead_id, ".$this->table.".id, ".$this->table2.".name, ".$this->table3.".title, ".$this->table.".n_kontrak, ".$this->table.".n_pagu FROM ".$this->table." LEFT JOIN ".$this->table2." ON ".$this->table.".rel_id = ".$this->table2.".id LEFT JOIN ".$this->table3." ON ".$this->table.".kategori = ".$this->table3.".id WHERE ".$this->table.".id = ?";
+				break;
+
+			case 1:
+				$qattach = $this->table.".dp_info, ".$this->table.".dp_kontrak, ".$this->table.".dp_pelaksana, ".$this->table.".dp_surat, ".$this->table.".n_kontrak, ".$this->table.".n_pagu";
+				break;
+
+			case 2:
+				$qattach = $this->table.".pf_info";
+				break;
+
+			case 3:
+				$qattach = $this->table.".mp_info";
+				break;
+
+			case 4:
+				$qattach = $this->table.".rp_info_prg, ".$this->table.".rp_info_waktu, ".$this->table.".rp_info_prg_c, ".$this->table.".rp_info_waktu_c";
+				break;
+
+			case 5:
+				$qattach = $this->table.".ke_info, ".$this->table.".ke_c";
+				break;
+
+			case 6:
+				$qattach = $this->table.".gallery";
+				break;
+
+			case 7:
+				$qattach = $this->table.".mk_info, ".$this->table.".mk_c_xy, ".$this->table.".mk_c_info";
+				break;
+
+			case 8:
+				$qattach = $this->table.".na_info";
+				break;
+
+			case 9:
+				$stmtq = "SELECT ".$this->table.".lead_id, ".$this->table.".kategori, ".$this->table.".dp_info, ".$this->table3.".title, ".$this->table.".n_pagu, ".$this->table.".id FROM ".$this->table." LEFT JOIN ".$this->table3." ON ".$this->table.".kategori = ".$this->table3.".id WHERE ".$this->table.".id = ?";
+				break;
+
+			case 10:
+				$s_id = 1;
+				$stmtq = "SELECT kategori, SUM(n_pagu) AS n_pagu, COUNT(id) AS jumlah FROM ".$this->table." WHERE ? GROUP BY kategori";
+				break;
+
+			case 11:
+				$stmtq = "SELECT ".$this->table.".dp_info, ".$this->table.".lead_id, ".$this->table.".n_pagu, ".$this->table.".n_kontrak, ".$this->table.".dp_kontrak, ".$this->table.".pf_info, ".$this->table.".ke_info, ".$this->table2.".name, ".$this->table.".id FROM ".$this->table." LEFT JOIN ".$this->table2." ON ".$this->table.".lead_id = ".$this->table2.".id WHERE ".$this->table.".kategori = ?";
+				break;
+
+			default:
+				return false;
+				break;
+		}
+
+		if(!isset($stmtq)):
+		$stmtq = "SELECT ".$this->table.".rel_id, ".$this->table.".kategori, ".$qattach.", ".$this->table2.".rel_id, ".$this->table.".id, ".$this->table2.".name FROM ".$this->table." LEFT JOIN ".$this->table2." ON ".$this->table.".rel_id = ".$this->table2.".id WHERE ".$this->table.".id = ?";
+		endif;
+
+		if ($stmt = $this->query->prepare($stmtq)){
+		    $stmt->bind_param("s", $s_id); 
+		    $stmt->execute();
+
+		   	switch ($special) {
+				case 0:
+		    		$stmt->bind_result($r_rel_id, $r_kategori, $r_dp_info, $r_dp_kontrak, $r_dp_pelaksana, $r_dp_surat, $r_pf_info, $r_mp_info, $r_rp_info_prg, $r_rp_info_waktu, $r_rp_info_prg_c, $r_rp_info_waktu_c, $r_ke_info, $r_ke_c, $r_gallery, $r_mk_info, $r_mk_c_xy, $r_mk_c_info, $r_na_info, $r_rel2_id, $r_id, $r_name, $kat_name, $r_n_kontrak, $r_n_pagu);
+					break;
+
+				case 1:
+		    		$stmt->bind_result($r_rel_id, $r_kategori, $r_dp_info, $r_dp_kontrak, $r_dp_pelaksana, $r_dp_surat, $r_n_kontrak, $r_n_pagu, $r_rel2_id, $r_id, $r_name);
+					break;
+
+				case 2:
+		    		$stmt->bind_result($r_rel_id, $r_kategori, $r_pf_info, $r_rel2_id, $r_id, $r_name);
+					break;
+
+				case 3:
+		    		$stmt->bind_result($r_rel_id, $r_kategori, $r_mp_info, $r_rel2_id, $r_id, $r_name);
+					break;
+
+				case 4:
+		    		$stmt->bind_result($r_rel_id, $r_kategori, $r_rp_info_prg, $r_rp_info_waktu, $r_rp_info_prg_c, $r_rp_info_waktu_c, $r_rel2_id, $r_id, $r_name);
+					break;
+
+				case 5:
+					$stmt->bind_result($r_rel_id, $r_kategori, $r_ke_info, $r_ke_c, $r_rel2_id, $r_id, $r_name);
+					break;
+
+				case 6:
+					$stmt->bind_result($r_rel_id, $r_kategori, $r_gallery, $r_rel2_id, $r_id, $r_name);
+					break;
+
+				case 7:
+					$stmt->bind_result($r_rel_id, $r_kategori, $r_mk_info, $r_mk_c_xy, $r_mk_c_info, $r_rel2_id, $r_id, $r_name);
+					break;
+
+				case 8:
+					$stmt->bind_result($r_rel_id, $r_kategori, $r_na_info, $r_rel2_id, $r_id, $r_name);
+					break;
+
+				case 9:
+					$stmt->bind_result($r_rel_id, $r_kategori, $r_dp_info, $r_title, $r_n_pagu, $r_id);
+					break;
+
+				case 10:
+					$stmt->bind_result($r_kategori, $r_n_kontrak, $r_jumlah);
+					break;
+
+				case 11:
+					$stmt->bind_result($r_dp_info, $r_lead_id, $r_n_pagu, $r_n_kontrak, $r_dp_kontrak, $r_pf_info, $r_ke_info, $r_name, $r_id);
+					break;
+
+				default:
+					return false;
+					break;
+			}
+
+
+		    $x = 0;
+		    while($stmt->fetch()):
+
+		    switch ($special) {
+				case 0:
+			    	$array['id_kontraktor'] = $r_rel_id; 
+					$array['id_kategori'] = $r_kategori; 
+					$array['info'] = $r_dp_info; 
+					$array['info_kontrak'] = $r_dp_kontrak; 
+					$array['info_pelaksana'] = $r_dp_pelaksana; 
+					$array['info_surat'] = $r_dp_surat; 
+					$array['info_fisik'] = $r_pf_info; 
+					$array['info_monitoring_p'] = $r_mp_info; 
+					$array['info_ringkasan'] = $r_rp_info_prg; 
+					$array['info_waktu'] = $r_rp_info_waktu; 
+					$array['info_keuangan'] = $r_ke_info; 
+					$array['info_monitoring_k'] = $r_mk_info;
+					$array['chart_keuangan'] = $r_ke_c; 
+					$array['chart_ringkasan'] = $r_rp_info_prg_c; 
+					$array['chart_waktu'] = $r_rp_info_waktu_c; 
+					$array['gallery'] = $r_gallery; 
+
+					$array['chart_monitoring_k_xy'] = $r_mk_c_xy; 
+					$array['chart_monitoring_k_info'] = $r_mk_c_info; 
+					$array['info_nama'] = $r_na_info; 
+					$array['id_kontraktor'] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					$array[0][22] = $kat_name;
+					$array[0][23] = $r_n_kontrak;
+					$array[0][24] = $r_n_pagu;			
+					break;
+
+				case 1:
+			    	$array[0][0] = $r_rel_id; 
+					$array[0][1] = $r_kategori; 
+					$array[0][2] = $r_dp_info; 
+					$array[0][3] = $r_dp_kontrak; 
+					$array[0][4] = $r_dp_pelaksana; 
+					$array[0][5] = $r_dp_surat;
+					$array[0][6] = $r_n_kontrak;
+					$array[0][7] = $r_n_pagu;
+					$array[0][19] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					break;
+
+				case 2:
+			    	$array[0][0] = $r_rel_id; 
+					$array[0][1] = $r_kategori; 
+					$array[0][2] = $r_pf_info; 
+					$array[0][19] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					break;
+
+				case 3:
+			    	$array[0][0] = $r_rel_id; 
+					$array[0][1] = $r_kategori; 
+					$array[0][2] = $r_mp_info; 
+					$array[0][19] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					break;
+
+				case 4:
+			    	$array[0][0] = $r_rel_id; 
+					$array[0][1] = $r_kategori; 
+					$array[0][2] = $r_rp_info_prg; 
+					$array[0][3] = $r_rp_info_waktu; 
+					$array[0][4] = $r_rp_info_prg_c; 
+					$array[0][5] = $r_rp_info_waktu_c;
+					$array[0][19] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					break;
+
+				case 5:
+					$array[0][0] = $r_rel_id; 
+					$array[0][1] = $r_kategori;
+					$array[0][2] = $r_ke_info;
+					$array[0][3] = $r_ke_c;
+					$array[0][19] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					break;
+
+				case 6:
+					$array[0][0] = $r_rel_id; 
+					$array[0][1] = $r_kategori;
+					$array[0][2] = $r_gallery;
+					$array[0][19] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					break;
+
+				case 7:
+					$array[0][0] = $r_rel_id; 
+					$array[0][1] = $r_kategori;
+					$array[0][2] = $r_mk_info;
+					$array[0][3] = $r_mk_c_xy;
+					$array[0][4] = $r_mk_c_info;
+					$array[0][19] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					break;
+
+				case 8:
+					$array[0][0] = $r_rel_id; 
+					$array[0][1] = $r_kategori; 
+					$array[0][2] = $r_na_info;
+					$array[0][19] = $r_rel2_id;
+					$array[0][20] = $r_id;
+					$array[0][21] = $r_name;
+					break;
+
+				case 9:
+					$array['id_pptk'] = $r_rel_id;
+					$array['kategori'] = $r_kategori;
+					$array['info'] = $r_dp_info;
+					$array['title_kategori'] = $r_title;
+					$array['nilai_pagu'] = $r_n_pagu;
+					$array['id'] = $r_id;
+					break;
+
+				case 10:
+					$array[$x]['id'] = $r_kategori;
+					$array[$x]['dana'] = $r_n_kontrak;
+					$array[$x]['jumlah'] = $r_jumlah;
+					break;
+
+				case 11:
+					$array[$x]['info'] = $r_dp_info;
+					$array[$x]['id_pptk'] = $r_lead_id;
+					$array[$x]['nilai_pagu'] = $r_n_pagu;
+					$array[$x]['nilai_kontrak'] = $r_n_kontrak;
+					$array[$x]['info_add'] = $r_dp_kontrak;
+					$array[$x]['info_fisik'] = $r_pf_info;
+					$array[$x]['info_uang'] = $r_ke_info;
+					$array[$x]['nama_pptk'] = $r_name;
+					$array[$x]['id'] = $r_id;
+					break;
+				
+				default:
+					return false;
+					break;
+				}
+
+
+		    	$x++;
+
+			endwhile;
+		    $stmt->close();
+
+			if(!empty($array)){ 
+				return $array;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+
+	function delete($id){
+
+		$stmtq = "DELETE FROM ".$this->table." WHERE id = ?";
+	    if($stmt = $this->query->prepare($stmtq)) {
+
+			$stmt->bind_param('s', $id);
+			$stmt->execute();
+
+	    	$stmt->close();
+	    	return true;
+		}
+		else {
+			return false;
+		}
+	
+	}
+
+	function update($q_m) {
+
+		switch ($q_m) {
+			case 1:
+				$qattach = "dp_info = ?, dp_kontrak = ?, dp_pelaksana = ?, dp_surat = ?";
+				break;
+
+			case 2:
+				$qattach = "pf_info = ?";
+				break;
+
+			case 3:
+				$qattach = "mp_info = ?";
+				break;
+
+			case 4:
+				$qattach = "rp_info_prg = ?, rp_info_prg_c = ?, rp_info_waktu = ?, rp_info_waktu_c = ?";
+				break;
+
+			case 5:
+				$qattach = "ke_info = ?, ke_c = ?";
+				break;
+
+			case 6:
+				$qattach = "gallery = ?";
+				break;
+
+			case 7:
+				$qattach = "mk_info = ?, mk_c_xy = ?, mk_c_info = ?";
+				break;
+
+			case 8:
+				$qattach = "na_info = ?";
+				break;
+			
+			default:
+				return false;
+				break;
+		}
+
+		$stmtq = "UPDATE ".$this->table." SET ".$qattach." WHERE rel_id = ?";
+
+//		printf(str_replace("?", "%s", $stmtq), $q_rel_id, $s_id, $q_r_id, $q_r_time, $q_status, $q_komentar, $q_time, $q_r_status, $q_s_id);
+
+		date_default_timezone_set($this->timezone);
+	    $q_time = date("Y-m-d H:i:s");
+
+	    if ($stmt = $this->query->prepare($stmtq)) {
+
+		   	switch ($q_m) {
+				case 1:
+	        		$stmt->bind_param("sssss", $this->dp_info, $this->dp_kontrak, $this->dp_pelaksana, $this->dp_surat, $this->q_id);
+					break;
+
+				case 2:
+					$stmt->bind_param("ss", $this->pf_info, $this->q_id);
+					break;
+
+				case 3:
+					$stmt->bind_param("ss", $this->mp_info, $this->q_id);
+					break;
+
+				case 4:
+					$stmt->bind_param("sssss", $this->rp_info_prg, $this->rp_info_prg_c, $this->rp_info_waktu, $this->rp_info_waktu_c, $this->q_id);
+					break;
+				
+				case 5:
+					$stmt->bind_param("sss", $this->ke_info, $this->ke_c, $this->q_id);
+					break;
+
+				case 6:
+					$stmt->bind_param("ss", $this->gallery, $this->q_id);
+					break;
+
+				case 7:
+					$stmt->bind_param("ssss", $this->mk_info, $this->mk_c_xy, $this->mk_c_info, $this->q_id);
+					break;
+
+				case 8:
+					$stmt->bind_param("ss", $this->na_info, $this->q_id);
+					break;
+			
+				default:
+					return false;
+					break;
+			}
+
+	        $stmt->execute();
+
+	        $stmt->close();
+	        return true;
+	    }
+	    else {
+	    	return false;
+	    }
+	}
+
+}
+
+class catProcess extends dashb {
+
+	protected $table = "cat";
+
+	private $q_cat_title;
+	private $q_id;
+
+	function setInfo($q_cat_title, $q_q_id = "") {
+		$this->cat_title = $q_cat_title;
+		$this->q_id = $q_q_id;
+	}
+
+	function delete($id){
+
+		$stmtq = "DELETE FROM ".$this->table." WHERE id = ?";
+	    if($stmt = $this->query->prepare($stmtq)) {
+
+			$stmt->bind_param('s', $id);
+			$stmt->execute();
+
+	    	$stmt->close();
+	    	return true;
+		}
+		else {
+			return false;
+		}
+	
+	}
+
+	function insert(){
+		$stmtq = "INSERT INTO ".$this->table." (title) VALUES (?)";
+	    if($stmt = $this->query->prepare($stmtq)) {
+
+			$stmt->bind_param('s', $this->cat_title);
+			$stmt->execute();
+
+	    	$stmt->close();
+		}
+	
+	}
+
+	function update(){
+
+		$stmtq = "UPDATE ".$this->table." SET title = ? WHERE id = ?";
+	    if($stmt = $this->query->prepare($stmtq)) {
+
+			$stmt->bind_param('ss', $this->cat_title, $this->q_id);
+			$stmt->execute();
+
+	    	$stmt->close();
+		}
+	}
+
+	function fetch($special = 0, $id = "") {
+
+		switch ($special) {
+			case 0:
+				$qattach = 1;
+				break;
+
+			case 1:
+				$qattach = "id = ?";
+				break;
+
+			default:
+				return false;
+				break;
+		}
+
+		$stmtq = "SELECT id, title FROM ".$this->table." WHERE ".$qattach;
+
+		if ($stmt = $this->query->prepare($stmtq)){ 
+			switch ($special) {
+				case 0:
+					break;
+
+				case 1:
+					$stmt->bind_param("s", $id);
+					break;
+
+				default:
+					return false;
+					break;
+			}
+
+		    $stmt->execute();
+
+		   	switch ($special) {
+				case 0:
+		    		$stmt->bind_result($r_id, $r_title);
+					break;
+
+				case 1:
+		    		$stmt->bind_result($r_id, $r_title);
+					break;
+
+				default:
+					return false;
+					break;
+			}
+
+
+		    $x = 0;
+		    while($stmt->fetch()):
+
+		    	$array[$x]['id'] = $r_id; 
+				$array[$x]['title'] = $r_title;
+
+			$x++;
+			endwhile;
+		    $stmt->close();
+
+			if(!empty($array)){ 
+				return $array;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+
+}

@@ -1,0 +1,20 @@
+Options -Indexes
+RewriteEngine on
+
+#Order Deny,Allow
+#Deny from 127.0.0.1
+
+#RewriteCond %{THE_REQUEST} ^(?:GET|POST)\s(?:/*prokal/|//+|\.ph.*\?|.*php)
+#RewriteRule ^(.*)$ prokal/html/error.php?errorCode=404&reason=Page+not+Found&logout=0&nobutton=1 [END]
+
+#RewriteCond %{THE_REQUEST} ^(?:GET|POST)\s(?:.*phexec)
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^((.*\.)(?:phexec))$ $2php [END,QSA,NS]
+
+#RewriteCond %{THE_REQUEST} ^(?:GET|POST)\s/?dash/([a-zA-Z]+)(?:/([1-9]+))?/?\sHTTP.*$
+#RewriteCond $1 !/?index.php
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^((?:.*(?:\/|\?))?([a-zA-Z]+)(?:(?:\/)([1-9]+))?\/?)$ prokal/dash/index.php?d=$2&id=$3 [END,QSA,NS]
+
+RewriteCond %{THE_REQUEST} ^(?:GET|POST)\s/?dash/(cat|user|docs|gallery|mail|main|maps)/processor/?\sHTTP.*$
+RewriteRule ^.*/?(?!processor)/?(cat|user|docs|gallery|mail|main|maps)/processor/?$ prokal/dash/$1/fetcher.php [L]

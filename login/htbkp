@@ -1,0 +1,3 @@
+RewriteCond %{THE_REQUEST} ^(?:GET|POST)\s/?logout/?\sHTTP.*$
+RewriteRule ^(.*)$ logout.php [END]
+
